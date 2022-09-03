@@ -1,2 +1,2 @@
 # zlmsx.github.io
-# Main #
+[ jump ](blog/test.md)
