@@ -1,2 +1,2 @@
 # zlmsx.github.io
-[jump](blog/test.md)
+[jump](./blog/test.md)
