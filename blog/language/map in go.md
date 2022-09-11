@@ -7,10 +7,6 @@ ox: linux 5.15.0-47-generic
 ## 底层数据结构
 Golang的map是基于散列表(hash table)实现的,其大致结构如下图：
 ![map](../../img/gomap.png)
-<<<<<<< HEAD
-=======
-
->>>>>>> 4ff4181 (update2)
 go在map的空间占用上下了很大功夫，这一点从他bmap的设计就可以看出来。他并没有采用传用单个结构体存储单个key-value（就像java那样），而是将多个key-value挂载在一个bmap结构下，这个操作减少了对象数量，有利于内存空间管理；而且在同一个bmap中，k-v也不是以‘k-v/k-v/k-v’形式存储的，而是key，value单独存放的形式，其内存分布大致如下图：
 ![bamp](../../img/bmap.png)
 
@@ -31,8 +27,6 @@ make(map[int]int, 8)
 
 
 ## 定位
-<<<<<<< HEAD
-=======
 主要代码：
 ```GoLang
     //定位所属bmap
@@ -46,7 +40,6 @@ make(map[int]int, 8)
 ```
 a = 14 ，对应的二进制为1110,那么像 1101, 0001这样的数再也得不到了。
 ```
->>>>>>> 4ff4181 (update2)
 
 ## 扩容
 
