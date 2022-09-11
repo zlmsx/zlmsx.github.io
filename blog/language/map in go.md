@@ -1,5 +1,21 @@
 # map在Golang中的实现
 
+
+**目录**
+- [map在Golang中的实现](#map在golang中的实现)
+  - [环境](#环境)
+  - [底层数据结构](#底层数据结构)
+    - [hash冲突解决方式](#hash冲突解决方式)
+  - [初始化](#初始化)
+  - [定位](#定位)
+    - [桶定位](#桶定位)
+    - [key定位（value定位）](#key定位value定位)
+  - [扩容](#扩容)
+    - [触发条件](#触发条件)
+    - [扩容策略](#扩容策略)
+  - [线程安全](#线程安全)
+  - [总结](#总结)
+
 ## 环境
 go version:1.18.1
 
@@ -61,5 +77,51 @@ e := add(unsafe.Pointer(b), dataOffset+bucketCnt*uintptr(t.keysize)+i*uintptr(t.
 ```
  
 ## 扩容
+### 触发条件
+主要代码：
+```go
+if !h.growing() && (overLoadFactor(h.count+1, h.B) || tooManyOverflowBuckets(h.noverflow, h.B)) {
+		hashGrow(t, h)
+		goto again 
+	}
 
-## 
+// 条件1
+//count > 2^B * （13/2）
+func overLoadFactor(count int, B uint8) bool {
+	return count > bucketCnt && uintptr(count) > loadFactorNum*(bucketShift(B)/loadFactorDen)
+}
+
+//条件2
+// 当B < 15 时，noverflow  >= 2^B
+//B >= 15 时, noverflow >= 2^15
+func tooManyOverflowBuckets(noverflow uint16, B uint8) bool {
+	//noerflow表示扩展的bmap数目
+	if B > 15 {
+		B = 15
+	}
+    
+	return noverflow >= uint16(1)<<(B&15)
+}
+```
+条件2是为了处理大量插入数据，然后大量删除数据之后，不会触发条件一，但会创建很多overflow bucket，这样会导致key过于分散。既影响查找效率，还浪费大量空间。
+### 扩容策略
+1. 先将原buckets挂载在oldbuckets下
+2. 根据不同的扩容条件生成新buckets
+   1. 条件一：将容量扩充一倍
+   2. 条件二：等量扩容
+3. 搬迁：
+    1. 条件一：重新计算hash值
+    2. 条件二：不用计算hash值，直接按序号来搬
+go的扩容是渐进的，一次扩容搬迁两个bmap链，这点和redis的hash扩容策略一样
+
+## 线程安全
+ Go map 不是线程安全的，在查找，赋值，删除过程中，都会检查写操作，如果发现当前正在执行写操作，就会直接panic。
+ 代码如下：
+ ```go
+ if h.flags&hashWriting != 0 {
+		throw("concurrent map iteration and map write")
+	}
+ ```
+
+ ## 总结
+ go map 总体设计上是一个时间换空间的设计，也不支持多线程，所以在使用的时候需要多加小心。
