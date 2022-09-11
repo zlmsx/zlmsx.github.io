@@ -6,4 +6,4 @@
 ## 目录（挖坑）
 
 ### 
-[Map in Go](./blog/test.md)
+[Map in Go](./blog/language/map%20in%20go.md)
