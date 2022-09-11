@@ -27,6 +27,7 @@ make(map[int]int, 8)
 
 
 ## 定位
+### 桶定位
 主要代码：
 ```GoLang
     //定位所属bmap
@@ -40,7 +41,25 @@ make(map[int]int, 8)
 ```
 a = 14 ，对应的二进制为1110,那么像 1101, 0001这样的数再也得不到了。
 ```
-
+### key定位（value定位）
+主要代码：
+```go
+//这里将hash值左移了56位，所以最后只剩下原hash的前8位，所以我们可以看到key的位置由hash值的前8位决定
+func tophash(hash uintptr) uint8 {
+    //Ptrsize 就是单字节长度，64位为8,32为4
+	top := uint8(hash >> (goarch.PtrSize*8 - 8))
+	if top < minTopHash {
+		top += minTopHash
+	}
+	return top
+}
+//key 定位
+//dataOffset就是key相对于bmap的起始地址的偏移
+k := add(unsafe.Pointer(b), dataOffset+i*uintptr(t.keysize))
+//value定位
+e := add(unsafe.Pointer(b), dataOffset+bucketCnt*uintptr(t.keysize)+i*uintptr(t.elemsize))
+```
+ 
 ## 扩容
 
 ## 
