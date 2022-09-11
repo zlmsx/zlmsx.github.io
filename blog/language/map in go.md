@@ -2,10 +2,15 @@
 
 ## 环境
 go version:1.18.1
+
 ox: linux 5.15.0-47-generic
 ## 底层数据结构
 Golang的map是基于散列表(hash table)实现的,其大致结构如下图：
 ![map](../../img/gomap.png)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4ff4181 (update2)
 go在map的空间占用上下了很大功夫，这一点从他bmap的设计就可以看出来。他并没有采用传用单个结构体存储单个key-value（就像java那样），而是将多个key-value挂载在一个bmap结构下，这个操作减少了对象数量，有利于内存空间管理；而且在同一个bmap中，k-v也不是以‘k-v/k-v/k-v’形式存储的，而是key，value单独存放的形式，其内存分布大致如下图：
 ![bamp](../../img/bmap.png)
 
@@ -26,6 +31,22 @@ make(map[int]int, 8)
 
 
 ## 定位
+<<<<<<< HEAD
+=======
+主要代码：
+```GoLang
+    //定位所属bmap
+    hash := t.hasher(key, uintptr(h.hash0))
+    // m ：= uintptr(1) << h.B -1 
+	m := bucketMask(h.B)
+    //这一步取的是hash值的后B位
+	b := (*bmap)(add(h.buckets, (hash&m)*uintptr(t.bucketsize)))
+```
+这里可以看到为什么buckets总数为2的幂次了，因为 在求b值的时候我们其实是在作一个求余运算，只不过是用&运算来实现，对于&运算我们知道，只有两个1相与才会等于一，而0与上0或1都为0。换句话说，与1相与自身不变，与0相与自身变0,所以在与0相与后，会丢失一些数永远都得不到。举个例子：
+```
+a = 14 ，对应的二进制为1110,那么像 1101, 0001这样的数再也得不到了。
+```
+>>>>>>> 4ff4181 (update2)
 
 ## 扩容
 
