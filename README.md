@@ -4,5 +4,5 @@
 
 
 ## 目录（挖坑）
-[Map in Go](./blog/language/mapgo.md)
-[go的多线程]()
+[Map in Go](./blog/language/mapgo.md)  
+[go的多线程](./blog/language/MultithreadingGo.md)  
