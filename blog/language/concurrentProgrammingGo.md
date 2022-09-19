@@ -1,5 +1,23 @@
 # concurrent programming in Go  
-
+- [concurrent programming in Go](#concurrent-programming-in-go)
+  - [什么是并发编程](#什么是并发编程)
+    - [并发编程模型](#并发编程模型)
+  - [Goroutine](#goroutine)
+    - [什么是goroutine](#什么是goroutine)
+    - [Go Scheduler](#go-scheduler)
+    - [GMP](#gmp)
+    - [调度机制（非全部）](#调度机制非全部)
+    - [总结](#总结)
+  - [Channel](#channel)
+    - [什么是Channel](#什么是channel)
+    - [相关操作](#相关操作)
+    - [发送](#发送)
+    - [接收](#接收)
+    - [关闭](#关闭)
+    - [总结](#总结-1)
+  - [同步访问控制(sync)](#同步访问控制sync)
+    - [sync.WaitGroup](#syncwaitgroup)
+    - [sync.Map](#syncmap)
 
 ## 什么是并发编程  
 并发是多个事件在同一时间间隔发生，而，而并发编程就是用编程语言来处理这个问题。
@@ -30,6 +48,9 @@ if _g_.m.spinning || 2*atomic.Load(&sched.nmspinning) < procs-atomic.Load(&sched
 所以，当处于自旋的M数太多时，当前M就会放弃自旋，不给CPU造成太大压力。  
 ### 总结
 goroutine确实是一个很好的设计，但是它也有它的缺点，比如它不能设置优先级在一些特定情况下，不能定制并发调度系统。  
+
+[回到顶部](#concurrent-programming-in-go)
+
 ## Channel  
 ### 什么是Channel  
 Channel是一个Go基于[CSP](https://zh.m.wikipedia.org/zh-hans/%E9%80%9A%E4%BF%A1%E9%A1%BA%E5%BA%8F%E8%BF%9B%E7%A8%8B)实现的一个有锁循环队列，Goroutine可以发送数据到其中，也可以从中获取数据，就是不能更改队列中的数据。
@@ -83,6 +104,7 @@ Channel的关闭就三条规则：
 3. **释放发送与接收队列。**
 ### 总结  
 channel专注于数据的流动，本身又是线程安全的，但channel并不是并发问题的最优解，在处理并发访问不流动的数据上，channel并不适合，所以在处理实际问题时不要盲目选择channel，也可以考虑使用同步锁。  
+[回到顶部](#concurrent-programming-in-go)  
 ## 同步访问控制(sync)  
 ### sync.WaitGroup  
 WaitGroup可以实现多个并发执行的代码块执行完，在继续向后运行的效果。它的工作原理就是维持一个运行计数（这个数代表等待执行的代码块数量），每当一个代码块执行完毕，主动发起运行完毕操作，运行技数减一，当运行计数等于0时，阻塞结束，继续执行下面的代码块。  
